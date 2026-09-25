@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guide pratique Vue.js — API et CRUD</title>
+  <meta name="description" content="Guide pas à pas pour connecter une API et réaliser un CRUD avec Vue.js.">
+  <style>
+    :root { color-scheme: light; --fond:#f4f7f5; --surface:#fff; --texte:#172033; --gris:#627083; --ligne:#dce5df; --vert:#0f5132; --vert-clair:#eaf5ee; --jaune:#fcd116; --rouge:#ce1126; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:95px; }
+    body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .tricolore { height:5px; background:linear-gradient(90deg,#14b53a 0 33.33%,var(--jaune) 33.33% 66.66%,var(--rouge) 66.66%); }
+    .barre { position:sticky; top:0; z-index:5; background:#ffffffed; border-bottom:1px solid var(--ligne); backdrop-filter:blur(10px); }
+    nav { display:flex; align-items:center; gap:6px; max-width:1020px; min-height:68px; margin:auto; padding:10px 20px; overflow-x:auto; }
+    nav a { flex:0 0 auto; padding:8px 11px; border-radius:8px; color:#475569; font-size:14px; font-weight:650; text-decoration:none; }
+    nav a:hover { color:var(--vert); background:var(--vert-clair); }
+    nav .marque { margin-right:auto; color:var(--texte); font-size:17px; font-weight:800; }
+    main { max-width:920px; margin:34px auto 70px; padding:0 20px; }
+    .hero,.section { margin-bottom:18px; padding:26px 30px; border:1px solid var(--ligne); border-radius:14px; background:var(--surface); box-shadow:0 6px 20px #12301d0a; }
+    .hero { padding-block:34px; border-top:4px solid var(--vert); }
+    .badge,.numero { color:var(--vert); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+    h1,h2,h3 { line-height:1.25; }
+    h1 { max-width:750px; margin:8px 0; font-size:clamp(29px,5vw,42px); }
+    h2 { margin:5px 0 12px; color:var(--vert); font-size:24px; }
+    h3 { margin:10px 0 8px; font-size:18px; }
+    p { margin:9px 0; }
+    .intro { max-width:700px; color:var(--gris); font-size:17px; }
+    .section { scroll-margin-top:88px; }
+    pre { overflow-x:auto; margin:13px 0; padding:16px 18px; border-radius:9px; background:#111827; color:#f8fafc; font:14px/1.6 Consolas,monospace; }
+    code { font-family:Consolas,"Courier New",monospace; }
+    p code,li code { padding:2px 5px; border-radius:4px; background:#edf2f7; font-size:.92em; }
+    .note,.flow { margin-top:14px; padding:13px 16px; border-left:4px solid #16a34a; border-radius:7px; background:var(--vert-clair); }
+    .actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:17px; }
+    .action { min-width:0; padding:18px; border:1px solid var(--ligne); border-radius:11px; background:#fcfdfc; }
+    .method { display:inline-block; padding:4px 9px; border-radius:99px; font-size:11px; font-weight:800; letter-spacing:.04em; }
+    .get { color:#075985; background:#e0f2fe; }.post { color:#166534; background:#dcfce7; }.put { color:#92400e; background:#fef3c7; }.delete { color:#991b1b; background:#fee2e2; }
+    .route { display:inline-block; margin:5px 0; color:var(--vert); font-weight:750; }
+    ol { padding-left:23px; } li { margin:9px 0; }
+    .aide { color:var(--gris); }
+    footer { padding:22px; border-top:1px solid var(--ligne); color:var(--gris); text-align:center; }
+    @media(max-width:650px) { nav { min-height:56px; gap:2px; padding-inline:10px; } nav a { padding:7px; font-size:12px; } nav .marque { font-size:14px; } main { margin-top:18px; padding-inline:12px; } .hero,.section { padding:21px 18px; } .actions { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="tricolore" aria-hidden="true"></div>
+  <header class="barre">
+    <nav aria-label="Sommaire du guide">
+      <a class="marque" href="#debut">Guide Vue.js</a>
+      <a href="#demarrer">Démarrer</a>
+      <a href="#api">Connecter l’API</a>
+      <a href="#crud">CRUD</a>
+      <a href="#personnaliser">Personnaliser</a>
+      <a href="#git">Git</a>
+    </nav>
+  </header>
+
+  <main id="debut">
+    <section class="hero">
+      <span class="badge">Guide pas à pas</span>
+      <h1>Connecter une API et créer un CRUD</h1>
+      <p class="intro">Un exemple avec des produits pour comprendre comment lire, ajouter, modifier et supprimer des données.</p>
+    </section>
+
+    <section id="demarrer" class="section">
+      <span class="numero">Étape 1</span>
+      <h2>Lancer le projet</h2>
+      <p>Ouvrez un terminal dans le dossier du projet, puis lancez :</p>
+      <pre>npm install
+npm run dev</pre>
+      <p>Ouvrez l’adresse affichée dans le terminal, généralement <code>http://localhost:5173</code>.</p>
+    </section>
+
+    <section id="api" class="section">
+      <span class="numero">Étape 2</span>
+      <h2>Connecter votre API</h2>
+      <p>Copiez <code>.env.example</code> dans un nouveau fichier appelé <code>.env</code>. Remplacez l’adresse par celle de votre API :</p>
+      <pre>VITE_API_BASE_URL=https://api.maboutique.fr/api
+VITE_API_ENDPOINT_PRODUCTS=/products</pre>
+      <p>Le site va alors demander les produits à <code>https://api.maboutique.fr/api/products</code>. Après une modification de <code>.env</code>, relancez <code>npm run dev</code>.</p>
+      <div class="note"><strong>Mode démo :</strong> les pages d’exemple appellent l’API sans compte. Si votre API exige une connexion, mettez <code>VITE_DEMO_MODE=false</code> et utilisez un compte de cette API.</div>
+    </section>
+
+    <section id="crud" class="section">
+      <span class="numero">Étape 3</span>
+      <h2>Faire le CRUD, étape par étape</h2>
+      <p>CRUD veut dire : créer, lire, modifier et supprimer. L’API des produits doit fournir les routes ci-dessous.</p>
+      <p>Exemple d’un produit :</p>
+      <pre>{ "id": 1, "name": "Cahier", "category": "Papeterie", "price": 3.5, "stock": 20 }</pre>
+
+      <div class="actions">
+        <article class="action">
+          <span class="method get">1 · LIRE</span>
+          <h3>Afficher la liste</h3>
+          <code class="route">GET /products</code>
+          <p>Le service demande les produits à l’API. La page affiche les éléments reçus dans le tableau.</p>
+          <p class="aide">Dans ce projet, cette étape est déjà reliée.</p>
+        </article>
+        <article class="action">
+          <span class="method post">2 · CRÉER</span>
+          <h3>Ajouter un produit</h3>
+          <code class="route">POST /products</code>
+          <p>Remplissez le formulaire et envoyez les valeurs à l’API. Exemple :</p>
+          <pre>{ "name": "Cahier", "category": "Papeterie", "price": 3.5, "stock": 20 }</pre>
+          <p>Après la réponse, le tableau recharge la liste.</p>
+        </article>
+        <article class="action">
+          <span class="method put">3 · MODIFIER</span>
+          <h3>Mettre à jour un produit</h3>
+          <code class="route">PUT /products/1</code>
+          <p>Le chiffre <code>1</code> est l’identifiant du produit. Envoyez les nouvelles valeurs, puis rechargez la liste.</p>
+        </article>
+        <article class="action">
+          <span class="method delete">4 · SUPPRIMER</span>
+          <h3>Retirer un produit</h3>
+          <code class="route">DELETE /products/1</code>
+          <p>Après confirmation, envoyez son identifiant à l’API. Le tableau se met à jour.</p>
+        </article>
+      </div>
+      <div class="flow"><strong>Résumé :</strong> la page appelle le service, le service contacte l’API, puis la page affiche la réponse.</div>
+    </section>
+
+    <section id="personnaliser" class="section">
+      <span class="numero">Étape 4</span>
+      <h2>Adapter les champs à votre API</h2>
+      <p>Ouvrez <code>src/views/demo/DemoResourceView.vue</code> et trouvez la configuration <code>produits</code>. Elle contient les colonnes du tableau et les champs du formulaire.</p>
+      <p>Par exemple, ce réglage affiche un champ « Nom du produit » :</p>
+      <pre>{ cle: 'name', label: 'Nom du produit' }</pre>
+      <p>Le nom <code>name</code> doit être identique au nom du champ utilisé par l’API. Si votre API utilise <code>nom</code>, écrivez plutôt :</p>
+      <pre>{ cle: 'nom', label: 'Nom du produit' }</pre>
+      <p class="aide">Le service qui envoie les requêtes se trouve dans <code>src/services/demoResources.service.js</code>.</p>
+    </section>
+
+    <section class="section">
+      <span class="numero">Étape 5</span>
+      <h2>Ajouter une nouvelle ressource</h2>
+      <p>Exemple : ajouter une page « Catégories ». Faites ces trois changements :</p>
+      <ol>
+        <li>Dans <code>src/services/demoResources.service.js</code>, ajoutez <code>categories: '/categories'</code> dans la liste <code>ENDPOINTS</code>.</li>
+        <li>Dans <code>src/views/demo/DemoResourceView.vue</code>, ajoutez <code>categories</code> dans <code>CONFIGURATIONS</code>, avec ses colonnes et champs.</li>
+        <li>Dans <code>src/layouts/TheSidebar.vue</code>, ajoutez un lien de menu vers <code>demo-ressource</code> avec le paramètre <code>ressource: 'categories'</code>.</li>
+      </ol>
+      <p>Le même service gérera ensuite la lecture, l’ajout, la modification et la suppression.</p>
+    </section>
+
+    <section id="git" class="section">
+      <span class="numero">Étape 6</span>
+      <h2>Partager le code avec Git</h2>
+      <p>Une fois le projet relié à votre dépôt GitHub, envoyez vos changements avec :</p>
+      <pre>git add .
+git commit -m "Ajout de mon CRUD"
+git push</pre>
+      <div class="note"><strong>Important :</strong> partagez <code>.env.example</code>, mais jamais le fichier <code>.env</code>. Chaque personne doit indiquer son propre domaine d’API.</div>
+    </section>
+
+    <section class="section">
+      <h2>Si ça ne fonctionne pas</h2>
+      <p><strong>Le tableau est vide :</strong> vérifiez que <code>GET /products</code> renvoie bien une liste.</p>
+      <p><strong>Erreur 404 :</strong> vérifiez le domaine et la route dans <code>.env</code>.</p>
+      <p><strong>Erreur CORS :</strong> l’API doit autoriser l’adresse de votre site.</p>
+      <p><strong>La modification échoue :</strong> chaque produit doit avoir un <code>id</code>.</p>
+    </section>
+  </main>
+  <footer>Guide pratique du projet Vue.js · API et CRUD</footer>
+</body>
+</html>

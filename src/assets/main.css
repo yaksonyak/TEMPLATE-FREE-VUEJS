@@ -1,0 +1,75 @@
+/* src/assets/main.css
+   Feuille de style principale. Tailwind v4 se configure directement en CSS :
+   plus besoin de tailwind.config.js. */
+@import "tailwindcss";
+
+/* Palette et jetons de style de l'application */
+@theme {
+  --color-cnece-primary: #0F5132;
+  --color-cnece-secondary: #E6F4EA;
+  --color-cnece-accent: #15803D;
+  --color-cnece-gold: #D97706;
+  --color-cnece-danger: #DC2626;
+  --color-cnece-bg: #F8FAFC;
+  --color-brand-sidebar: #0B3D2C;
+  --color-brand-green: #14B53A;
+  --color-brand-gold: #FCD116;
+  --color-brand-red: #CE1126;
+  --font-sans: "Inter", "Roboto", sans-serif;
+  --font-mono: "Fira Code", "Courier New", monospace;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-cnece-primary hover:bg-cnece-accent text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-success {
+    @apply bg-cnece-accent hover:bg-green-800 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply bg-cnece-danger hover:bg-red-700 text-white font-medium px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-outline {
+    @apply border border-slate-300 hover:bg-slate-100 text-slate-700 font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .cnece-table {
+    @apply w-full text-left border-collapse bg-white rounded-xl overflow-hidden shadow-md border border-slate-200/80;
+  }
+  .cnece-table thead {
+    background: linear-gradient(135deg, var(--color-cnece-primary), var(--color-cnece-accent));
+  }
+  .cnece-table th {
+    @apply text-white text-xs font-semibold uppercase tracking-wider px-5 py-3.5 border-b-2 border-cnece-accent;
+  }
+  .cnece-table tbody tr {
+    @apply transition-colors duration-200;
+  }
+  .cnece-table tbody tr:nth-child(even) {
+    @apply bg-slate-50/50;
+  }
+  .cnece-table tbody tr:hover {
+    @apply bg-cnece-secondary/50;
+    box-shadow: inset 3px 0 0 0 var(--color-cnece-accent);
+  }
+  .cnece-table td {
+    @apply px-5 py-3.5 border-b border-slate-100 text-sm text-slate-700 leading-relaxed;
+  }
+  .champ-filtre {
+    @apply rounded-lg border border-slate-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-cnece-accent;
+  }
+  .matricule-badge {
+    @apply font-mono bg-slate-100 text-cnece-primary font-bold px-2 py-1 rounded border border-slate-300 text-xs tracking-wider;
+  }
+}
