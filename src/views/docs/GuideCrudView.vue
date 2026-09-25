@@ -198,31 +198,31 @@ git push</code></pre>
 </template>
 
 <style scoped>
-.guide { max-width: 1100px; margin: 0 auto; color: #213547; }
-.guide-hero { padding: 32px; border-radius: 16px; color: white; background: linear-gradient(120deg, #35495e, #42b883); }
+.guide { max-width: 1100px; margin: 0 auto; color: #e6f4ec; }
+.guide-hero { padding: 32px; border: 1px solid #347957; border-radius: 16px; color: white; background: linear-gradient(120deg, #173a2a, #42b883); }
 .eyebrow,.step { display: inline-block; margin-bottom: 8px; color: #2d8f67; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .guide-hero .eyebrow { color: #d9fbe9; }
 h1 { max-width: 760px; margin: 0; font-size: clamp(1.8rem, 4vw, 2.7rem); line-height: 1.12; }
 .guide-hero p { max-width: 700px; margin: 14px 0 0; color: #e0f2e9; font-size: 1.05rem; }
-.guide-nav { position: sticky; top: 64px; z-index: 1; display: flex; gap: 8px; overflow-x: auto; margin: 16px 0; padding: 10px; border: 1px solid #dce3ec; border-radius: 12px; background: #ffffffed; backdrop-filter: blur(8px); }
-.guide-nav a { flex: 0 0 auto; padding: 7px 10px; border-radius: 8px; color: #334155; font-size: .88rem; font-weight: 650; text-decoration: none; }
-.guide-nav a:hover { color: #0f5132; background: #e9f5ee; }
-.guide-section,.guide-help { scroll-margin-top: 135px; margin: 16px 0; padding: 24px 28px; border: 1px solid #dce3ec; border-radius: 14px; background: white; box-shadow: 0 4px 14px #17203308; }
-.guide-section h2,.guide-help h2 { margin: 0 0 10px; color: #35495e; font-size: 1.4rem; }
+.guide-nav { position: sticky; top: 64px; z-index: 1; display: flex; gap: 8px; overflow-x: auto; margin: 16px 0; padding: 10px; border: 1px solid #28533e; border-radius: 12px; background: #0b2118ed; backdrop-filter: blur(8px); }
+.guide-nav a { flex: 0 0 auto; padding: 7px 10px; border-radius: 8px; color: #c0d9ca; font-size: .88rem; font-weight: 650; text-decoration: none; }
+.guide-nav a:hover { color: #fff; background: #173d2c; }
+.guide-section,.guide-help { scroll-margin-top: 135px; margin: 16px 0; padding: 24px 28px; border: 1px solid #28533e; border-radius: 14px; background: #102b20; box-shadow: 0 4px 14px #020b0680; }
+.guide-section h2,.guide-help h2 { margin: 0 0 10px; color: #73d6a7; font-size: 1.4rem; }
 .guide-section p,.guide-help p { margin: 9px 0; line-height: 1.65; }
-.guide code { padding: 2px 5px; border-radius: 4px; background: #eef2f7; font-size: .9em; }
+.guide code { padding: 2px 5px; border-radius: 4px; background: #1c3b2d; color: #c5f3db; font-size: .9em; }
 .guide pre { overflow-x: auto; margin: 12px 0; padding: 15px 17px; border-radius: 9px; background: #111827; color: #f8fafc; line-height: 1.6; }
 .guide pre code { padding: 0; background: transparent; color: inherit; font-size: .9rem; }
 .note,.flow { margin-top: 14px; padding: 13px 16px; border-left: 4px solid #42b883; border-radius: 7px; background: #e8f8f0; line-height: 1.6; }
 .crud-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-top: 18px; }
-.crud-card { padding: 18px; border: 1px solid #e2e8f0; border-radius: 11px; background: #fbfcfd; }
+.crud-card { padding: 18px; border: 1px solid #28533e; border-radius: 11px; background: #163a2b; }
 .crud-card h3 { margin: 10px 0 6px; font-size: 1.05rem; }
 .crud-card p { font-size: .94rem; }
-.crud-card .route { display: inline-block; margin: 4px 0; color: #35495e; font-weight: 700; }
-.crud-card .file { color: #64748b; font-size: .85rem; }
+.crud-card .route { display: inline-block; margin: 4px 0; color: #8be0b5; font-weight: 700; }
+.crud-card .file { color: #a4c3b1; font-size: .85rem; }
 .http { display: inline-flex; padding: 4px 8px; border-radius: 999px; font-size: .7rem; font-weight: 800; letter-spacing: .04em; }
 .get { color: #075985; background: #e0f2fe; }.post { color: #166534; background: #dcfce7; }.put { color: #92400e; background: #fef3c7; }.delete { color: #991b1b; background: #fee2e2; }
 ol { padding-left: 22px; } li { margin: 8px 0; line-height: 1.6; }
-.guide-help { border-color: #b5e8cf; background: #f4fcf7; }
+.guide-help { border-color: #347957; background: #102b20; }
 @media(max-width:700px) { .guide-hero { padding: 25px 21px; }.guide-section,.guide-help { padding: 20px; }.crud-list { grid-template-columns: 1fr; }.guide-nav { top: 56px; } }
 </style>

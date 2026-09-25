@@ -6,40 +6,41 @@
   <title>Guide pratique Vue.js — API et CRUD</title>
   <meta name="description" content="Guide pas à pas pour connecter une API et réaliser un CRUD avec Vue.js.">
   <style>
-    :root { color-scheme: light; --fond:#f6f8fa; --surface:#fff; --texte:#213547; --gris:#64748b; --ligne:#e2e8f0; --vert:#42b883; --vert-fonce:#35495e; --vert-clair:#e8f8f0; }
+    :root { color-scheme: dark; --fond:#0b2118; --surface:#102b20; --surface-2:#163a2b; --texte:#e6f4ec; --gris:#a4c3b1; --ligne:#28533e; --vert:#42b883; --vert-fonce:#42b883; --vert-clair:#173d2c; }
     * { box-sizing:border-box; }
     html { scroll-behavior:smooth; scroll-padding-top:95px; }
     body { margin:0; background:var(--fond); color:var(--texte); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
     .tricolore { height:4px; background:linear-gradient(90deg,var(--vert) 0 44%,var(--vert-fonce) 44%); }
-    .barre { position:sticky; top:0; z-index:5; background:#ffffffed; border-bottom:1px solid var(--ligne); backdrop-filter:blur(10px); }
+    .barre { position:sticky; top:0; z-index:5; background:#0b2118ed; border-bottom:1px solid var(--ligne); backdrop-filter:blur(10px); }
     nav { display:flex; align-items:center; gap:6px; max-width:1020px; min-height:68px; margin:auto; padding:10px 20px; overflow-x:auto; }
-    nav a { flex:0 0 auto; padding:8px 11px; border-radius:8px; color:#475569; font-size:14px; font-weight:650; text-decoration:none; }
-    nav a:hover { color:var(--vert-fonce); background:var(--vert-clair); }
-    nav .marque { display:flex; align-items:center; gap:9px; margin-right:auto; color:var(--vert-fonce); font-size:17px; font-weight:800; }
+    nav a { flex:0 0 auto; padding:8px 11px; border-radius:8px; color:#c0d9ca; font-size:14px; font-weight:650; text-decoration:none; }
+    nav a:hover { color:#fff; background:var(--vert-clair); }
+    nav .marque { display:flex; align-items:center; gap:9px; margin-right:auto; color:#e6f4ec; font-size:17px; font-weight:800; }
     nav .marque::before { content:"V"; display:grid; width:30px; height:30px; place-items:center; border-radius:8px; background:var(--vert); color:#fff; font-size:16px; }
     main { max-width:920px; margin:34px auto 70px; padding:0 20px; }
-    .hero,.section { margin-bottom:18px; padding:26px 30px; border:1px solid var(--ligne); border-radius:14px; background:var(--surface); box-shadow:0 6px 20px #12301d0a; }
-    .hero { padding-block:34px; border:0; color:#fff; background:linear-gradient(125deg,var(--vert-fonce),var(--vert)); }
+    .hero,.section { margin-bottom:18px; padding:26px 30px; border:1px solid var(--ligne); border-radius:14px; background:var(--surface); box-shadow:0 6px 20px #020b0680; }
+    .hero { padding-block:34px; border:1px solid #347957; color:#fff; background:linear-gradient(125deg,#173a2a,#42b883); }
     .hero .badge { color:#d9fbe9; }
     .badge,.numero { color:var(--vert); font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
     h1,h2,h3 { line-height:1.25; }
     h1 { max-width:750px; margin:8px 0; font-size:clamp(29px,5vw,42px); }
-    h2 { margin:5px 0 12px; color:var(--vert-fonce); font-size:24px; }
+    h2 { margin:5px 0 12px; color:#73d6a7; font-size:24px; }
     h3 { margin:10px 0 8px; font-size:18px; }
     p { margin:9px 0; }
-    .intro { max-width:700px; color:var(--gris); font-size:17px; }
+    .intro { max-width:700px; color:#d3eee0; font-size:17px; }
     .section { scroll-margin-top:88px; }
     pre { overflow-x:auto; margin:13px 0; padding:16px 18px; border-radius:9px; background:#111827; color:#f8fafc; font:14px/1.6 Consolas,monospace; }
     code { font-family:Consolas,"Courier New",monospace; }
-    p code,li code { padding:2px 5px; border-radius:4px; background:#edf2f7; font-size:.92em; }
+    p code,li code { padding:2px 5px; border-radius:4px; background:#1c3b2d; color:#c5f3db; font-size:.92em; }
     .note,.flow { margin-top:14px; padding:13px 16px; border-left:4px solid var(--vert); border-radius:7px; background:var(--vert-clair); }
     .actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:17px; }
-    .action { min-width:0; padding:18px; border:1px solid var(--ligne); border-radius:11px; background:#fcfdfc; }
+    .action { min-width:0; padding:18px; border:1px solid var(--ligne); border-radius:11px; background:var(--surface-2); }
     .method { display:inline-block; padding:4px 9px; border-radius:99px; font-size:11px; font-weight:800; letter-spacing:.04em; }
     .get { color:#075985; background:#e0f2fe; }.post { color:#166534; background:#dcfce7; }.put { color:#92400e; background:#fef3c7; }.delete { color:#991b1b; background:#fee2e2; }
-    .route { display:inline-block; margin:5px 0; color:var(--vert-fonce); font-weight:750; }
+    .route { display:inline-block; margin:5px 0; color:#8be0b5; font-weight:750; }
     ol { padding-left:23px; } li { margin:9px 0; }
     .aide { color:var(--gris); }
+    .guide-help { padding:25px 30px; border:1px solid #347957; border-radius:14px; background:#102b20; }
     footer { padding:22px; border-top:1px solid var(--ligne); color:var(--gris); text-align:center; }
     @media(max-width:650px) { nav { min-height:56px; gap:2px; padding-inline:10px; } nav a { padding:7px; font-size:12px; } nav .marque { font-size:14px; } main { margin-top:18px; padding-inline:12px; } .hero,.section { padding:21px 18px; } .actions { grid-template-columns:1fr; } }
   </style>
