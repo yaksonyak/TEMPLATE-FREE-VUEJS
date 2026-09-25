@@ -51,8 +51,11 @@
       <a class="marque" href="#debut">Guide Vue.js</a>
       <a href="#demarrer">Démarrer</a>
       <a href="#api">Connecter l’API</a>
+      <a href="#service">Créer le service</a>
       <a href="#crud">CRUD</a>
-      <a href="#personnaliser">Personnaliser</a>
+      <a href="#vue">Créer la page</a>
+      <a href="#nouvelle-ressource">Ajouter une ressource</a>
+      <a href="#verification">Vérifier</a>
       <a href="#git">Git</a>
     </nav>
   </header>
@@ -80,73 +83,150 @@ npm run dev</pre>
       <pre>VITE_API_BASE_URL=https://api.maboutique.fr/api
 VITE_API_ENDPOINT_PRODUCTS=/products</pre>
       <p>Le site va alors demander les produits à <code>https://api.maboutique.fr/api/products</code>. Après une modification de <code>.env</code>, relancez <code>npm run dev</code>.</p>
-      <div class="note"><strong>Mode démo :</strong> les pages d’exemple appellent l’API sans compte. Si votre API exige une connexion, mettez <code>VITE_DEMO_MODE=false</code> et utilisez un compte de cette API.</div>
+      <div class="note"><strong>Mode démo :</strong> les pages d’exemple appellent l’API sans jeton. Si votre API exige une connexion, mettez <code>VITE_DEMO_MODE=false</code> et connectez-vous avec un compte de cette API.</div>
+    </section>
+
+    <section id="service" class="section">
+      <span class="numero">Étape 3 · Service API</span>
+      <h2>Créer le service qui parle à l’API</h2>
+      <p>Un service est un fichier JavaScript qui regroupe les requêtes d’une ressource. Dans ce projet, le service partagé existe déjà : <code>src/services/demoResources.service.js</code>. Il utilise <code>src/services/api.js</code>, qui contient l’adresse de base et la configuration Axios.</p>
+      <p><strong>1. Déclarer les routes.</strong> La clé est le nom utilisé par la page, la valeur est la route de l’API :</p>
+      <pre><code>const ENDPOINTS = {
+  produits: import.meta.env.VITE_API_ENDPOINT_PRODUCTS || '/products',
+  commandes: import.meta.env.VITE_API_ENDPOINT_ORDERS || '/orders',
+  clients: import.meta.env.VITE_API_ENDPOINT_CUSTOMERS || '/customers',
+}</code></pre>
+      <p><strong>2. Ajouter les fonctions de lecture et d’écriture.</strong> Elles reçoivent le nom de la ressource et construisent la requête HTTP :</p>
+      <pre><code>export default {
+  async lister(ressource, params = {}) {
+    const reponse = await api.get(endpoint(ressource), { params })
+    return normaliserListe(reponse, params)
+  },
+  async creer(ressource, donnees) {
+    const reponse = await api.post(endpoint(ressource), donnees)
+    return enveloppe(reponse)
+  },
+  async modifier(ressource, id, donnees) {
+    const reponse = await api.put(endpoint(ressource, id), donnees)
+    return enveloppe(reponse)
+  },
+  async supprimer(ressource, id) {
+    const reponse = await api.delete(endpoint(ressource, id))
+    return enveloppe(reponse)
+  },
+}</code></pre>
+      <p><code>api.get</code> lit, <code>api.post</code> crée, <code>api.put</code> modifie et <code>api.delete</code> supprime. Le service transforme aussi les réponses pour que la page puisse utiliser une liste et sa pagination.</p>
+      <p class="aide">Pour brancher une nouvelle ressource, ajoutez son chemin dans <code>ENDPOINTS</code>, par exemple <code>categories: '/categories'</code>.</p>
     </section>
 
     <section id="crud" class="section">
-      <span class="numero">Étape 3</span>
-      <h2>Faire le CRUD, étape par étape</h2>
-      <p>CRUD veut dire : créer, lire, modifier et supprimer. L’API des produits doit fournir les routes ci-dessous.</p>
+      <span class="numero">Étape 4 · Les requêtes</span>
+      <h2>Faire les quatre actions du CRUD</h2>
+      <p>CRUD veut dire créer, lire, modifier et supprimer. L’API doit fournir ces quatre routes. Chaque réponse de liste doit contenir les champs affichés et un <code>id</code> unique.</p>
       <p>Exemple d’un produit :</p>
       <pre>{ "id": 1, "name": "Cahier", "category": "Papeterie", "price": 3.5, "stock": 20 }</pre>
+      <p>Une liste paginée peut avoir cette forme :</p>
+      <pre>{ "data": { "elements": [{ "id": 1, "name": "Cahier", "category": "Papeterie", "price": 3.5, "stock": 20 }], "pagination": { "page": 1, "par_page": 10, "total": 1, "total_pages": 1 } } }</pre>
 
       <div class="actions">
         <article class="action">
           <span class="method get">1 · LIRE</span>
           <h3>Afficher la liste</h3>
           <code class="route">GET /products</code>
-          <p>Le service demande les produits à l’API. La page affiche les éléments reçus dans le tableau.</p>
-          <p class="aide">Dans ce projet, cette étape est déjà reliée.</p>
+          <p>Dans <code>DemoResourceView.vue</code>, <code>created()</code> lance <code>charger()</code>. La méthode appelle le service, puis range le résultat normalisé dans <code>lignes</code> et <code>pagination</code>.</p>
+          <pre>const resultat = await demoResourcesService.lister(this.ressource, {
+  page: this.page,
+  par_page: this.taillePage,
+  recherche: this.recherche || undefined,
+})
+this.lignes = resultat.elements
+this.pagination = resultat.pagination</pre>
+          <p>La fonction normalise les formats courants. Adaptez-la si votre API renvoie, par exemple, <code>{ "items": [], "total": 0 }</code> au lieu de <code>data.elements</code>.</p>
         </article>
         <article class="action">
           <span class="method post">2 · CRÉER</span>
           <h3>Ajouter un produit</h3>
           <code class="route">POST /products</code>
-          <p>Remplissez le formulaire et envoyez les valeurs à l’API. Exemple :</p>
+          <p>Le bouton « Ajouter » lance <code>ouvrirFormulaire()</code>, qui vide les champs configurés. <code>v-model</code> garde la saisie dans <code>formulaire</code>, puis <code>enregistrer()</code> l’envoie :</p>
           <pre>{ "name": "Cahier", "category": "Papeterie", "price": 3.5, "stock": 20 }</pre>
-          <p>Après la réponse, le tableau recharge la liste.</p>
+          <pre>await demoResourcesService.creer(this.ressource, this.formulaire)
+this.modalOuverte = false
+await this.charger()</pre>
+          <p>Le corps doit contenir les champs attendus par l’API. Après le succès, le formulaire se ferme et le tableau est actualisé.</p>
         </article>
         <article class="action">
           <span class="method put">3 · MODIFIER</span>
           <h3>Mettre à jour un produit</h3>
           <code class="route">PUT /products/1</code>
-          <p>Le chiffre <code>1</code> est l’identifiant du produit. Envoyez les nouvelles valeurs, puis rechargez la liste.</p>
+          <p><code>modifier(ligne)</code> copie les valeurs configurées dans <code>formulaire</code>, conserve l’identifiant dans <code>indexModification</code> et ouvre la fenêtre :</p>
+          <pre>this.indexModification = ligne.id
+this.formulaire = Object.fromEntries(
+  this.configuration.champs.map((champ) => [champ.cle, ligne[champ.cle] ?? '']),
+)
+this.modalOuverte = true</pre>
+          <p>À l’envoi, <code>enregistrer()</code> choisit <code>modifier()</code> et le service envoie <code>PUT /products/1</code> avec les nouvelles valeurs.</p>
         </article>
         <article class="action">
           <span class="method delete">4 · SUPPRIMER</span>
           <h3>Retirer un produit</h3>
           <code class="route">DELETE /products/1</code>
-          <p>Après confirmation, envoyez son identifiant à l’API. Le tableau se met à jour.</p>
+          <p>Le bouton demande une confirmation. Après validation, <code>supprimer()</code> envoie l’identifiant mémorisé dans <code>ligneASupprimer</code>, puis actualise la liste :</p>
+          <pre>await demoResourcesService.supprimer(
+  this.ressource,
+  this.ligneASupprimer.id,
+)
+this.ligneASupprimer = null
+await this.charger()</pre>
         </article>
       </div>
       <div class="flow"><strong>Résumé :</strong> la page appelle le service, le service contacte l’API, puis la page affiche la réponse.</div>
     </section>
 
-    <section id="personnaliser" class="section">
-      <span class="numero">Étape 4</span>
-      <h2>Adapter les champs à votre API</h2>
-      <p>Ouvrez <code>src/views/demo/DemoResourceView.vue</code> et trouvez la configuration <code>produits</code>. Elle contient les colonnes du tableau et les champs du formulaire.</p>
-      <p>Par exemple, ce réglage affiche un champ « Nom du produit » :</p>
-      <pre>{ cle: 'name', label: 'Nom du produit' }</pre>
-      <p>Le nom <code>name</code> doit être identique au nom du champ utilisé par l’API. Si votre API utilise <code>nom</code>, écrivez plutôt :</p>
-      <pre>{ cle: 'nom', label: 'Nom du produit' }</pre>
-      <p class="aide">Le service qui envoie les requêtes se trouve dans <code>src/services/demoResources.service.js</code>.</p>
+    <section id="vue" class="section">
+      <span class="numero">Étape 5 · Page Vue</span>
+      <h2>Relier le formulaire et le tableau au service</h2>
+      <p>Dans <code>src/views/demo/DemoResourceView.vue</code>, <code>CONFIGURATIONS.produits</code> déclare les colonnes et les champs. La valeur <code>cle</code> doit être le nom attendu par l’API :</p>
+      <pre><code>produits: {
+  colonnes: ['Nom', 'Catégorie', 'Prix', 'Stock'],
+  champs: [
+    { cle: 'name', label: 'Nom du produit' },
+    { cle: 'category', label: 'Catégorie' },
+    { cle: 'price', label: 'Prix', type: 'number' },
+    { cle: 'stock', label: 'Stock', type: 'number' },
+  ],
+}</code></pre>
+      <p>Le composant parcourt ces champs avec <code>v-for</code> et <code>v-model="formulaire[champ.cle]"</code>. Les lignes de la réponse sont affichées dans le tableau ; <code>CLES_COLONNES</code> relie chaque titre aux clés de réponse, par exemple <code>Prix</code> à <code>price</code> ou <code>prix</code>.</p>
+      <p>Au chargement de la page, <code>created()</code> appelle <code>charger()</code>. Les méthodes de création, modification et suppression rappellent ensuite <code>charger()</code> pour voir la réponse de l’API.</p>
+      <p class="note"><strong>Exemple de changement de nom :</strong> si votre API attend <code>nom</code>, remplacez <code>cle: 'name'</code> par <code>cle: 'nom'</code> dans la configuration et adaptez la colonne dans <code>CLES_COLONNES</code>.</p>
     </section>
 
-    <section class="section">
-      <span class="numero">Étape 5</span>
-      <h2>Ajouter une nouvelle ressource</h2>
+    <section id="nouvelle-ressource" class="section">
+      <span class="numero">Étape 6 · Navigation</span>
+      <h2>Ajouter la ressource au menu</h2>
       <p>Exemple : ajouter une page « Catégories ». Faites ces trois changements :</p>
       <ol>
-        <li>Dans <code>src/services/demoResources.service.js</code>, ajoutez <code>categories: '/categories'</code> dans la liste <code>ENDPOINTS</code>.</li>
-        <li>Dans <code>src/views/demo/DemoResourceView.vue</code>, ajoutez <code>categories</code> dans <code>CONFIGURATIONS</code>, avec ses colonnes et champs.</li>
-        <li>Dans <code>src/layouts/TheSidebar.vue</code>, ajoutez un lien de menu vers <code>demo-ressource</code> avec le paramètre <code>ressource: 'categories'</code>.</li>
+        <li>Ajoutez <code>categories: '/categories'</code> dans <code>ENDPOINTS</code> du service.</li>
+        <li>Ajoutez la configuration <code>categories</code> dans <code>CONFIGURATIONS</code> de la vue, avec les noms de colonnes et de champs de l’API.</li>
+        <li>Ajoutez ce lien dans <code>menuDemo</code> de <code>src/layouts/TheSidebar.vue</code> : <code>{ route: 'demo-ressource', params: { ressource: 'categories' }, libelle: 'Catégories', icone: 'liste' }</code>.</li>
       </ol>
-      <p>Le même service gérera ensuite la lecture, l’ajout, la modification et la suppression.</p>
+      <p>La route Vue <code>demo/:ressource</code> existe déjà : elle réutilise le même écran et le même CRUD pour chaque ressource.</p>
+    </section>
+
+    <section id="verification" class="section">
+      <span class="numero">Étape 7 · Vérification</span>
+      <h2>Vérifier chaque action</h2>
+      <ol>
+        <li>Ouvrez le navigateur, puis l’onglet Réseau (Network).</li>
+        <li>Ouvrez la page Produits : vérifiez la requête <code>GET /products</code> et les lignes reçues.</li>
+        <li>Ajoutez un produit : vérifiez <code>POST /products</code>, puis sa présence dans la liste.</li>
+        <li>Modifiez ce produit : vérifiez <code>PUT /products/{id}</code> et la nouvelle valeur.</li>
+        <li>Supprimez-le : vérifiez <code>DELETE /products/{id}</code> et sa disparition de la liste.</li>
+      </ol>
+      <p>Une réponse <code>401</code> indique une connexion nécessaire, <code>422</code> des champs invalides, <code>404</code> une route inconnue. Une erreur CORS doit être corrigée dans la configuration de l’API.</p>
     </section>
 
     <section id="git" class="section">
-      <span class="numero">Étape 6</span>
+      <span class="numero">Étape 8 · Partage</span>
       <h2>Partager le code avec Git</h2>
       <p>Une fois le projet relié à votre dépôt GitHub, envoyez vos changements avec :</p>
       <pre>git add .
